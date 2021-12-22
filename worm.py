@@ -55,7 +55,8 @@ credList = [
 ('hello1', 'world'),
 ('kali', 'kali'),
 ('root', '#Gig#'),
-('cpsc', 'cpsc'),
+('kali', 'kalikali'),
+('kitty', 'kitty'),
 ('root', 'toor'),
 ]
 
