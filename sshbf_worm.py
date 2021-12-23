@@ -94,8 +94,6 @@ def spreadAndExecute( sshClient, sftpClient ):
 		print (sys.exc_info()[0])
 		
 		
-
-
 ############################################################
 # Try to connect to the given host given the existing
 # credentials
